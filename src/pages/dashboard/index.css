@@ -1,6 +1,32 @@
+
+:root{
+  --primary-bg:##ffffff;
+  --secondary-bg:#d7ead9;
+  --text_color:#FFFFFF;
+  --sidebar-bg:#84d993;
+}
+/* Áp dụng cho trang Dashboard */
+body {
+  background-color: var(--primary-bg);
+  color: var(--text-color);
+}
+
+/* Sidebar */
+.bg-gray-800 {
+  background-color: var(--sidebar-bg);
+}
+
+/* Nội dung chính */
+.bg-gray-100 {
+  background-color: var(--secondary-bg);
+  color: #333;
+}
+
+
+
 .resizer {
   cursor: ew-resize;
   position: relative;
   display: flex;
   align-items: center;
-}
+};

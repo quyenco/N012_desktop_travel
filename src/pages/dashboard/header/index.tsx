@@ -3,17 +3,23 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import React from 'react';
 import Avatar from '../../../components/avatar';
 import avatarImg from '../../../assets/images/anh-avatar-cute-58.jpg';
+import logoImg from '../../../assets/images/logo.png';
+import './index.css';
 
 interface HeaderProps {}
 
 const Header: React.FC = () => {
   return (
-    <div className="flex h-[10%] bg-slate-500 justify-between items-center rounded-lg mt-1 mx-1 px-4">
-      <div>LOGO</div>
+    <div className="flex h-[10%] bg-custom justify-between items-center rounded-lg mt-1 mx-1 px-4">
       <div className="flex items-center">
-        <div className="px-3" onClick={() => alert('ATin nhắnT')}>
+        <img src={logoImg} alt="Logo" className="h-10 w-auto" />
+        <h1 className="text-2xl font-bold text-gray-700" style={{fontFamily: 'Dancing Script, cursive'}}>TADA
+        </h1>
+      </div>
+      <div className="flex items-center">
+        {/* <div className="px-3" onClick={() => alert('ATin nhắnT')}>
           <FontAwesomeIcon icon={faMessage} />
-        </div>
+        </div> */}
         <div className="px-3" onClick={() => alert('Thong báo')}>
           <FontAwesomeIcon icon={faBell} />
         </div>

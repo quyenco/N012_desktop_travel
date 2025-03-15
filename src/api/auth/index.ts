@@ -1,16 +1,21 @@
 import axios, {CustomAxiosResponse} from '../axiosConfig';
+import {toast} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
 interface ILoginRequest {
-  username: string;
+  email: string;
   password: string;
 }
 
 export const login = async (data: ILoginRequest): Promise<CustomAxiosResponse<any> | undefined> => {
   try {
-    const res = await axios.post('/api/v1/auth/login', data);
+    // console.log("API URL:", `${API_URL}/api/users/login`);
+    const res = await axios.post(`${API_URL}/api/users/login`, data);
     return res;
-  } catch (error) {
-    console.log(error);
+  } catch (error:any) {
+    toast.error(error.response?.data?.message || "Đăng nhập thất bại!");
   }
 };
 
