@@ -63,6 +63,8 @@ const Dashboard: React.FunctionComponent = () => {
 const menuItems = [
   { key: 'home', label: 'Trang chủ', path: 'home' },
   { key: 'tours', label: 'Quản lý tour', path: 'tours' },
+  { key: 'categories', label: 'Quản lý danh mục', path: 'categories' },
+  { key: 'bookings', label: 'Quản lý đơn đặt', path: 'bookings' },
   { key: 'employees', label: 'Quản lý nhân viên', path: 'employees' },
   { key: 'discounts', label: 'Quản lý khuyến mãi', path: 'discounts' },
   { key: 'customers', label: 'Quản lý khách hàng', path: 'customers' },
@@ -123,14 +125,6 @@ const handleMenuClick = (key: string, path: string) => {
               </li>
             ))}
           </ul>
-          {/* <ul>
-            <li className="mb-2">Trang chủ</li>
-            <li className="mb-2">Quản lý tour</li>
-            <li className="mb-2">Quản lý nhân viên</li>
-            <li className="mb-2">Quản lý khuyến mãi</li>
-            <li className="mb-2">Quản lý khách hàng</li>
-            <li className="mb-2">Thống kê</li>
-          </ul> */}
         </div>
 
         <div className="resizer" ref={resizerRef} onMouseDown={onMouseDown}>

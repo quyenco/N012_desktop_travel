@@ -23,52 +23,37 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (phone && password) {
-      setIsFilled(true);
-    } else {
-      setIsFilled(false);
-    }
+    setIsFilled(!!phone && !!password);
   }, [phone, password]);
 
   const handleLogin = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
 
-    // setIsLoading(true);
-    // const res = await login({username: phone, password: password});
-    // if (res?.statusCode === 200) {
-    //   console.log('res', res.data.user);
-    //   dispatch(setUserInfo(res.data.user));
-    //   Cookies.set('accessToken', res.data.accessToken, {expires: 1 / 24, secure: true});
-    //   Cookies.set('refreshToken', res.data.refreshToken, {expires: 7, secure: true});
-    //   setIsLoading(false);
-    // }
-
     setIsLoading(true);
     try {
-      const res = await login({email: phone, password: password});
-
-      const parsedRes = typeof res === "string" ? JSON.parse(res) : res;
-
-      console.log('api nhận được:', parsedRes);
-
+      const res = await login({ email: phone, password });
       
-      if (parsedRes.role?.trim().toUpperCase() === "ADMIN") {
-        const user = res;
-        // Lưu thông tin và token
-        // Cookies.set('accessToken', parsedRes.accessToken, {expires: 1 / 24});
-        Cookies.set('userRole', parsedRes.role, { expires: 1 / 24 });
-      Cookies.set('userId', parsedRes.userId, { expires: 1 / 24 });
-
-
+      if (res) {
         
-        // toast.success("Đăng nhập thành công!", {
-        //   onClose: () => navigate("/dashboard"),
-        // });
-        window.location.href= '/dashboard';
-        
-        console.log('sau navigate');
+        const { accessToken, refreshToken, user } = res;
+        console.log("api user:", user);
+        console.log("role:", user.role);
+        console.log("status:", user.status);
+
+        if ((user.role?.toUpperCase() === "ADMIN" || user.role?.toUpperCase() === "EMPLOYEE") && user.status?.toUpperCase() === "ACTIVE") {
+          console.log("sau if");
+          dispatch(setUserInfo(user));
+          Cookies.set('accessToken', accessToken, { expires: 1 / 24, secure: true });
+          Cookies.set('refreshToken', refreshToken, { expires: 7, secure: true });
+          Cookies.set('userRole', user.role, { expires: 1 / 24 });
+          Cookies.set('userId', user.userId, { expires: 1 / 24 });
+          toast.success("Đăng nhập thành công!");
+          localStorage.setItem("userRole", user.role);
+          navigate('/dashboard');
+        } else {
+          toast.error('Tài khoản không hợp lệ hoặc đã bị vô hiệu hóa!');
+        }
       } else {
-        console.log('sai tài khoản')
         toast.error('Sai tài khoản hoặc mật khẩu!');
       }
     } catch (error) {

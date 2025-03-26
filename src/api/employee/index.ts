@@ -9,7 +9,6 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 export const getEmployees = async (): Promise<CustomAxiosResponse<any> | undefined> => {
   try {
     const res = await axios.get(`${API_URL}/api/employees`);
-    console.log("api employee: ",res);
     return res;
   } catch (error: any) {
     toast.error("Không thể tải danh sách nhân viên!");
@@ -31,6 +30,8 @@ export const getEmployeeById = async (id: number): Promise<CustomAxiosResponse<a
 // Thêm nhân viên mới
 export const createEmployee = async (data: any): Promise<CustomAxiosResponse<any> | undefined> => {
   try {
+    console.log("data thêm nhân viên", data);
+    // const resuser = await.post(`${API_URL}/api/employees`, data)
     const res = await axios.post(`${API_URL}/api/employees`, data);
     toast.success("Thêm nhân viên thành công!");
     return res;
@@ -40,13 +41,14 @@ export const createEmployee = async (data: any): Promise<CustomAxiosResponse<any
   }
 };
 
+
 // Cập nhật thông tin nhân viên
 export const updateEmployee = async (
   id: number,
   data: any
 ): Promise<CustomAxiosResponse<any> | undefined> => {
   try {
-    const res = await axios.put(`${API_URL}/api/employees/${id}`, data);
+    const res = await axios.patch(`${API_URL}/api/employees/${id}`, data);
     toast.success("Cập nhật nhân viên thành công!");
     return res;
   } catch (error: any) {
