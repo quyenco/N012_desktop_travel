@@ -332,8 +332,8 @@ const handleRemoveSchedule =async (index: number) => {
         <h3 className="text-lg font-semibold mb-2">Hình ảnh tour</h3>
 
         <Image
-          // src={tour?.imageURL || "https://via.placeholder.com/600x400"}
-          src={tourImage}
+          src={tour?.imageURL || tourImage}
+          // src={tourImage}
           alt={tour?.name}
           className="w-full h-64 object-cover rounded-md"
         />

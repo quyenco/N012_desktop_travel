@@ -72,9 +72,9 @@ const FormAddTour = () => {
   return (
     <div className="p-6 bg-white shadow-md rounded-md max-w-2xl mx-auto">
       <h2 className="text-xl font-semibold mb-4">Thêm Tour Mới</h2>
-      <Button onClick={() => navigate(`/dashboard/tours/65/schedule`)}>
+      {/* <Button onClick={() => navigate(`/dashboard/tours/65/schedule`)}>
         chuyển sang schedule
-      </Button>
+      </Button> */}
 
       <Form form={form} layout="vertical" onFinish={handleAddTour}>
         {/* Thông tin tour */}

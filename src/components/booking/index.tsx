@@ -26,7 +26,7 @@ const BookingList: React.FC = () => {
     COMPLETED: { color: "text-blue-600", label: "✔️ Đã hoàn thành" },
     PAID: { color: "text-purple-600", label: "💸 Đã thanh toán" },
     IN_PROGRESS: { color: "text-yellow-500", label: "🔧 Đang thực hiện" },
-    PENDING: { color: "text-gray-500", label: "⏳ Đang chờ" },
+    // PENDING: { color: "text-gray-500", label: "⏳ Đang chờ" },
   };
 
   // 🛠️ Lấy danh sách booking từ API
@@ -157,8 +157,8 @@ const BookingList: React.FC = () => {
                 onClick={() => handleBookingClick(booking.bookingId)}
               >
                 <td className="border p-2 text-center font-medium text-gray-700">{index + 1}</td>
-                <td className="border p-2 font-semibold">{booking.customer.fullName}</td>
-                <td className="border p-2">{booking.tour.name}</td>
+                <td className="border p-2 font-semibold">{booking.customerName}</td>
+                <td className="border p-2">{booking.tourName}</td>
                 <td className="border p-2 text-center">{booking.bookingDate}</td>
                 <td className="border p-2 text-center">{booking.numberPeople}</td>
                 <td className="border p-2 text-right font-semibold text-green-700">

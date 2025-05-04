@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useParams, useNavigate} from 'react-router-dom';
-import {getBookingById} from '../../../api/booking/index';
+import {getBookingById, getCustomerByBookingId, getTourByBookingId} from '../../../api/booking/index';
 import {
   UserOutlined,
   CalendarOutlined,
@@ -19,18 +19,33 @@ const BookingDetail = () => {
   const {id} = useParams();
   const [booking, setBooking] = useState<any>(null);
   const navigate = useNavigate();
+  const [customer, setCustomer] = useState<any>(null);
+  const [tour, setTour] = useState<any>(null);
 
   useEffect(() => {
     const fetchBookingDetail = async () => {
       try {
         const data = await getBookingById(id);
-        if (data) setBooking(data);
+        if (data) {
+          setBooking(data);
+  
+          // Gọi API customer & tour ngay sau khi setBooking xong
+          const [customerData, tourData] = await Promise.all([
+            getCustomerByBookingId(data.bookingId),
+            getTourByBookingId(data.bookingId),
+          ]);
+  
+          setCustomer(customerData);
+          setTour(tourData);
+        }
       } catch (error) {
-        console.error('Lỗi khi tải chi tiết booking:', error);
+        console.error("Lỗi khi tải dữ liệu:", error);
       }
     };
+  
     fetchBookingDetail();
   }, [id]);
+  
 
   if (!booking) return <div className="text-center p-4">⏳ Đang tải chi tiết đơn đặt...</div>;
 
@@ -51,42 +66,50 @@ const BookingDetail = () => {
       </h2>
 
       {/* 🧍 Thông tin khách hàng */}
+      {customer&&
       <div className="bg-white shadow-lg p-6 rounded-lg border border-gray-200 mb-4 hover:scale-[1.02] transition-all">
-        <h3 className="text-2xl font-semibold mb-4 text-blue-600">👤 Thông tin khách hàng</h3>
+        <h3 className="text-2xl font-semibold mb-4 text-blue-600">Thông tin khách hàng</h3>
+        
+        <p><strong>Họ và tên:</strong> {customer?.fullName || "Đang cập nhật"}</p>
         <p>
-          <UserOutlined /> <strong>Họ và tên:</strong> {booking.customer.fullName}
+          <UserOutlined /> <strong>Họ và tên:</strong> {customer.fullName}
         </p>
         <p>
-          <CalendarOutlined /> <strong>Ngày sinh:</strong> {booking.customer.dob}
+          <CalendarOutlined /> <strong>Ngày sinh:</strong> {customer.dob}
         </p>
         <p>
-          <EnvironmentOutlined /> <strong>Địa chỉ:</strong> {booking.customer.address}
+          <EnvironmentOutlined /> <strong>Địa chỉ:</strong> {customer.address}
         </p>
-        <p>
-          <strong>Email:</strong> {booking.customer.user.email}
-        </p>
+       
+        {/* <p>
+          <strong>Email:</strong> {customer.user.email}
+        </p> */}
       </div>
+    }
 
       {/* 🏖️ Thông tin tour */}
+      {tour && (
       <div className="bg-white shadow-lg p-6 rounded-lg border border-gray-200 mb-4 hover:scale-[1.02] transition-all">
         <h3 className="text-2xl font-semibold mb-4 text-blue-600"> Thông tin tour</h3>
+        
         <p>
-          <strong>Tên tour:</strong> {booking.tour.name}
+          <strong>Tên tour:</strong> {tour.name}
+        </p>
+         <p>
+          <EnvironmentOutlined /> <strong>Địa điểm:</strong> {tour.location}
         </p>
         <p>
-          <EnvironmentOutlined /> <strong>Địa điểm:</strong> {booking.tour.location}
+          <FileTextOutlined /> <strong>Mô tả:</strong> {tour.description}
         </p>
         <p>
-          <FileTextOutlined /> <strong>Mô tả:</strong> {booking.tour.description}
+          <TagOutlined /> <strong>Loại tour:</strong> {tour.tourcategory.categoryName}
         </p>
         <p>
-          <TagOutlined /> <strong>Loại tour:</strong> {booking.tour.tourcategory.categoryName}
-        </p>
-        <p>
-          <strong>Giá gốc:</strong> {booking.tour.price.toLocaleString()} ₫
-        </p>
+          <strong>Giá gốc:</strong> {tour.price.toLocaleString()} ₫
+        </p> 
+        
       </div>
-
+      )}
       {/* 📋 Thông tin đơn đặt */}
       <div className="bg-white shadow-lg p-6 rounded-lg border border-gray-200 mb-4 hover:scale-[1.02] transition-all">
         <h3 className="text-2xl font-semibold mb-4 text-blue-600"> Thông tin đơn đặt</h3>

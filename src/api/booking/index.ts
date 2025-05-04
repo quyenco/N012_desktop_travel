@@ -7,7 +7,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 // 🎯 Lấy danh sách tất cả booking
 export const getBookings = async (): Promise<CustomAxiosResponse<any> | undefined> => {
   try {
-    const res = await axios.get(`${API_URL}/api/bookings`);
+    const res = await axios.get(`${API_URL}/api/bookings/all`);
     return res;
   } catch (error: any) {
     toast.error("Không thể tải danh sách booking!");
@@ -23,6 +23,26 @@ export const getBookingById = async (id: number): Promise<CustomAxiosResponse<an
   } catch (error: any) {
     toast.error("Không thể tải thông tin booking!");
     console.error("Lỗi lấy thông tin booking:", error);
+  }
+};
+// 🔍 Lấy chi tiết cusstomer booking theo ID
+export const getCustomerByBookingId = async (id: number): Promise<CustomAxiosResponse<any> | undefined> => {
+  try {
+    const res = await axios.get(`${API_URL}/api/bookings/customer/${id}`);
+    return res;
+  } catch (error: any) {
+    toast.error("Không thể tải thông tin customer theo booking!");
+    console.error("Lỗi lấy thông tin customer theo booking:", error);
+  }
+};
+// 🔍 Lấy chi tiết tour booking theo ID
+export const getTourByBookingId = async (id: number): Promise<CustomAxiosResponse<any> | undefined> => {
+  try {
+    const res = await axios.get(`${API_URL}/api/bookings/tour/${id}`);
+    return res;
+  } catch (error: any) {
+    toast.error("Không thể tải thông tin tour theo booking!");
+    console.error("Lỗi lấy thông tin tour theo booking:", error);
   }
 };
 

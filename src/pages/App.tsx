@@ -8,7 +8,7 @@ import Content from '../components/content';
 import Customer from '../components/customer';
 import Employee from '../components/employee';
 import Discount from '../components/discount';
-import Report from '../components/report';
+// import Report from '../components/report/revence';
 import CustomerDetail from '../components/customer/customerDetail';
 import Booking from '../components/booking';
 import BookingDetail from '../components/booking/bookingDetail';
@@ -17,6 +17,9 @@ import UpdateEmployee from '../components/employee/updateEmployee';
 import TourCategoryManagement from '../components/category';
 import FormAddTour from '../components/tour/addTour';
 import ScheduleForm from '../components/tour/addTour/addSchedule';
+import AddEmployeeForm from '../components/employee/addEmployee';
+import OrderReport from '../components/report/booking';
+import BookingReport from '../components/report/revence';
 
 const App: React.FC = () =>  {
   return (
@@ -44,10 +47,13 @@ const App: React.FC = () =>  {
 
           <Route path="employees" element={<Employee/>} />
           <Route path="employees/update/:id" element={<UpdateEmployee />} />
+          <Route path="employees/add" element={<AddEmployeeForm />} />
 
           <Route path="discounts" element={<Discount/>} />
 
-          <Route path="reports" element={<Report/>} />
+          <Route path="report-booking" element={<OrderReport/>} />
+          <Route path="report-revenue" element={<BookingReport/>} />
+
         </Route>
 
         {/* <Route path="/" element={<Dashboard />} />

@@ -16,18 +16,14 @@ const userId = Cookies.get('userId');
 console.log('Role:', userRole);
 console.log('UserId:', userId);
 
-
-
-
-
-
-
 const Dashboard: React.FunctionComponent = () => {
   const {t} = useTranslation();
   const [width, setWidth] = useState(240);
   const resizerRef = useRef<HTMLDivElement>(null);
   const maxWidth = 300;
   const minWidth = 200;
+  const [openSubMenu, setOpenSubMenu] = useState(false);
+  const [openSubMenuKey, setOpenSubMenuKey] = useState<string | null>(null);
 
   // navigate
   const navigate = useNavigate();
@@ -68,15 +64,33 @@ const menuItems = [
   { key: 'employees', label: 'Quản lý nhân viên', path: 'employees' },
   { key: 'discounts', label: 'Quản lý khuyến mãi', path: 'discounts' },
   { key: 'customers', label: 'Quản lý khách hàng', path: 'customers' },
-  { key: 'reports', label: 'Thống kê', path: 'reports' },
+
+  // { key: 'reports', label: 'Thống kê', path: 'reports' },
+  {
+    key: 'reports',
+    label: 'Thống kê',
+    path: '',
+    submenu: [
+      { key: 'report-booking', label: 'Thống kê doanh thu', path: 'report-booking' },
+      { key: 'report-revenue', label: 'Thống kê đơn đặt', path: 'report-revenue' },
+    ],
+  },
 ];
 
-const handleMenuClick = (key: string, path: string) => {
-  setActiveMenu(key);
-  navigate(path);
+// const handleMenuClick = (key: string, path: string) => {
+//   setActiveMenu(key);
+//   navigate(path);
+// };
+const handleMenuClick = (key: string, path: string, hasSubmenu: boolean = false) => {
+  if (hasSubmenu) {
+    // Nếu submenu đang mở, nhấn lại sẽ đóng
+    setOpenSubMenuKey(openSubMenuKey === key ? null : key);
+  } else {
+    setActiveMenu(key);
+    navigate(path);
+    setOpenSubMenuKey(null); // Ẩn submenu khi chuyển trang
+  }
 };
-
-
 
 
   const [data, setData] = useState<any>(null);
@@ -111,20 +125,34 @@ const handleMenuClick = (key: string, path: string) => {
         <div className="bg-gray-800 text-white p-4 m-1 rounded-lg" style={{width}}>
           <h2 className="text-2xl mb-4">Thanh Quản Lý</h2>
           <ul>
-            {menuItems.map((item) => (
+    {menuItems.map((item) => (
+      <li
+        key={item.key}
+        className={`mb-2 p-2 cursor-pointer rounded-md text-center transition-colors ${
+          activeMenu === item.key ? 'bg-green-500 text-white' : 'hover:bg-green-300'
+        }`}
+        onClick={() => handleMenuClick(item.key, item.path, !!item.submenu)}
+      >
+        {item.label}
+
+        {/* Hiển thị submenu khi openSubMenuKey === item.key */}
+        {item.submenu && openSubMenuKey === item.key && (
+          <ul className="mt-2 bg-gray-700 text-white shadow-md rounded-md">
+            {item.submenu.map((subItem) => (
               <li
-                key={item.key}
-                className={`mb-2 p-2 cursor-pointer rounded-md text-center transition-colors ${
-                  activeMenu === item.key
-                    ? 'bg-green-500 text-white'
-                    : 'hover:bg-green-300'
-                }`}
-                onClick={() => handleMenuClick(item.key, item.path)}
+                key={subItem.key}
+                className="px-4 py-2 hover:bg-green-400 cursor-pointer"
+                onClick={() => handleMenuClick(subItem.key, subItem.path)}
               >
-                {item.label}
+                {subItem.label}
               </li>
             ))}
           </ul>
+        )}
+      </li>
+    ))}
+  </ul>
+
         </div>
 
         <div className="resizer" ref={resizerRef} onMouseDown={onMouseDown}>

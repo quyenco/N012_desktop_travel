@@ -23,9 +23,7 @@ const Employee = () => {
   const navigate = useNavigate();
 
   // 🛠️ Giả lập lấy role người dùng từ localStorage
-  console.log("storage", localStorage)
   const userRole = localStorage.getItem("userRole");
-  console.log("user role", userRole);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,6 +65,9 @@ const Employee = () => {
   const handleUpdate = (employee: any) => {
     navigate(`/dashboard/employees/update/${employee.employeeId}`, { state: { employee } });
   };
+  const handleAddEmployee = () => {
+    navigate(`/dashboard/employees/add`);
+  };
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
@@ -76,20 +77,20 @@ const Employee = () => {
         <h1 className="text-2xl font-bold">👨‍💼 Quản lý nhân viên</h1>
         {userRole === "ADMIN" && (
         <button
-          onClick={() => setShowAddForm(true)}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          ➕ Thêm Nhân Viên
-        </button>
+        onClick={handleAddEmployee}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
+        ➕ Thêm Nhân Viên
+      </button>
         )}
       </div>
 
-      {showAddForm && (
+      {/* {showAddForm && (
         <AddEmployeeForm
           onClose={() => setShowAddForm(false)}
           onSuccess={handleAddSuccess}
         />
-      )}
+      )} */}
 
       {/* Bộ lọc nâng cao */}
       <div className="flex gap-4 mb-4">
