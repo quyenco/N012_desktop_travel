@@ -1,19 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { getCustomers, deleteCustomer } from "../../api/customer/index";
 import { useNavigate } from "react-router-dom";
-import { Pagination } from "antd";
+import { Pagination, Spin } from "antd";
 
 const Customer = () => {
   const [customers, setCustomers] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [customersPerPage] = useState(10); // Số lượng khách hàng mỗi trang
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
 
   // 🎯 Lấy danh sách khách hàng
   useEffect(() => {
     const fetchCustomers = async () => {
-      const data = await getCustomers();
-      if (data) setCustomers(data);
+      setLoading(true);
+      try {
+        const data = await getCustomers();
+        if (Array.isArray(data)) {
+          setCustomers(data);
+        } else {
+          message.warning("Dữ liệu khách hàng không hợp lệ.");
+        }
+      } catch (error) {
+        message.error("Không thể tải danh sách khách hàng.");
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchCustomers();
   }, []);
@@ -41,8 +54,13 @@ const Customer = () => {
     setCurrentPage(page);
   };
 
-
-  // if (loading) return <div className="text-center p-4">⏳ Đang tải dữ liệu...</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spin tip="Đang tải danh sách khách hàng..." size="large" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -57,7 +75,7 @@ const Customer = () => {
                 <th className="border p-2">#</th>
                 <th className="border p-2">Tên</th>
                 <th className="border p-2">Ngày sinh</th>
-                <th className="border p-2">Email</th>
+                {/* <th className="border p-2">Email</th> */}
                 <th className="border p-2">Địa chỉ</th>
                 <th className="border p-2">Giới tính</th>
               </tr>
@@ -74,7 +92,7 @@ const Customer = () => {
                   </td>
                   <td className="border p-2">{customer.fullName}</td>
                   <td className="border p-2">{customer.dob}</td>
-                  <td className="border p-2">{customer.user.email}</td>
+                  {/* <td className="border p-2">{customer.user.email}</td> */}
                   <td className="border p-2">{customer.address}</td>
                   <td className="border p-2">{customer.gender ? "Nam" : "Nữ"}</td>
                 </tr>

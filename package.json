@@ -5,10 +5,10 @@
   "main": "dist-electron/index.js",
   "type": "module",
   "author": {
-    "name": "Ngô Ngọc Vũ",
-    "email": "ngongocvu668@gmail.com"
+    "name": "Đặng Thị quyền Cơ",
+    "email": "dangthiquyenco2002@gmail.com"
   },
-  "description": "Đồ án tốt nghiệp - Ứng dụng quản lý thẩm mỹ viện.",
+  "description": "Đồ án tốt nghiệp - Ứng dụng quản lý tour.",
   "keywords": [
     "vite",
     "react",

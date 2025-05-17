@@ -38,6 +38,7 @@ const ScheduleForm = () => {
         departureTime: dayjs(values.departureTime).format("HH:mm:ss"),
       };
 
+      console.log("sheduleData:", scheduleData)
       const res = await createTourSchedule(tourId,scheduleData);
       console.log("resdate:",res)
       if (res) {

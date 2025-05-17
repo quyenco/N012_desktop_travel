@@ -1,38 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { getTours } from "../../api/tour/index";
 import { useNavigate } from "react-router-dom";
-import { Table, Button, Input, Select, Pagination, Space } from "antd";
+import { Table, Button, Input, Pagination, Space } from "antd";
 import { PlusCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
-
-const { Option } = Select;
+import { getTourCategories } from "../../api/category";
 
 const Tour: React.FC = () => {
   const navigate = useNavigate();
 
-  // State quản lý dữ liệu tours, phân trang, bộ lọc
+  const [allTours, setAllTours] = useState<any[]>([]);
   const [tours, setTours] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalTours, setTotalTours] = useState(0);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterCategory, setFilterCategory] = useState("");
+  const [categories, setCategories] = useState([]);
 
-  // Gọi API lấy danh sách tour kèm phân trang
-  const fetchTours = async (page = 1, size = 10, search = "", category = "") => {
+  const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await getTours();
-      const tourData = Array.isArray(res) ? res : []; // Đảm bảo dữ liệu là mảng
-      const filteredTours = tourData.filter(
-        (tour: any) =>
-          tour.name.toLowerCase().includes(search.toLowerCase()) &&
-          (category ? tour.tourcategory.categoryName === category : true)
-      );
+      const categoryData = await getTourCategories();
+      setCategories(categoryData);
 
-      setTours(filteredTours.slice((page - 1) * size, page * size));
-      setTotalTours(filteredTours.length);
+      const res = await getTours();
+      const tourData = Array.isArray(res) ? res : [];
+
+      setAllTours(tourData); // chỉ set 1 lần duy nhất
     } catch (error) {
       console.error("Lỗi tải danh sách tour:", error);
       toast.error("Không thể tải danh sách tour!");
@@ -41,20 +36,28 @@ const Tour: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchTours(currentPage, pageSize, searchTerm, filterCategory);
-  }, [currentPage, pageSize, searchTerm, filterCategory]);
+    fetchData();
+  }, []);
 
-  // Xử lý chọn tour
+  // Lọc và phân trang dữ liệu
+  useEffect(() => {
+    const filtered = allTours.filter((tour) =>
+      tour.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setTotalTours(filtered.length);
+    setTours(filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize));
+  }, [searchTerm, currentPage, pageSize, allTours]);
+
   const handleSelectTour = (id: number) => {
     navigate(`/dashboard/tours/${id}`);
   };
 
-  // Cấu hình cột cho bảng Tour
   const columns = [
     {
       title: "#",
       dataIndex: "index",
-      render: (_: any, __: any, index: number) => (currentPage - 1) * pageSize + index + 1,
+      render: (_: any, __: any, index: number) =>
+        (currentPage - 1) * pageSize + index + 1,
       align: "center",
     },
     {
@@ -68,8 +71,14 @@ const Tour: React.FC = () => {
     },
     {
       title: "Loại Tour",
-      dataIndex: ["tourcategory", "categoryName"],
+      dataIndex: ["category", "categoryName"],
       align: "center",
+      filters: categories.map((cat) => ({
+        text: cat.categoryName,
+        value: cat.categoryName,
+      })),
+      onFilter: (value: string, record: any) =>
+        record.category?.categoryName === value,
     },
     {
       title: "Địa điểm",
@@ -96,9 +105,8 @@ const Tour: React.FC = () => {
 
   return (
     <div className="p-4 bg-white shadow rounded-md">
-      {/* Tiêu đề và nút thêm */}
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold"> Quản lý Tour</h1>
+        <h1 className="text-2xl font-bold">Quản lý Tour</h1>
         <Button
           type="primary"
           icon={<PlusCircleOutlined />}
@@ -108,39 +116,21 @@ const Tour: React.FC = () => {
         </Button>
       </div>
 
-      {/* Thanh tìm kiếm và bộ lọc */}
       <Space style={{ marginBottom: 16 }} wrap>
         <Input
           placeholder="🔍 Tìm kiếm tour..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1); // reset về trang 1 khi tìm
+          }}
           suffix={<SearchOutlined />}
         />
-
-        <Select
-          placeholder="🗂 Chọn loại tour"
-          value={filterCategory}
-          onChange={(value) => setFilterCategory(value)}
-          style={{ width: 200 }}
-        >
-          <Option value="">Tất cả loại</Option>
-          <Option value="Biển">Biển</Option>
-          <Option value="Núi">Núi</Option>
-          <Option value="Đảo">Đảo</Option>
-        </Select>
-
-        <Button
-          onClick={() => {
-            setSearchTerm("");
-            setFilterCategory("");
-          }}
-          danger
-        >
+        <Button onClick={() => setSearchTerm("")} danger>
           🔄 Reset
         </Button>
       </Space>
 
-      {/* Bảng danh sách tour */}
       <Table
         columns={columns}
         dataSource={tours}
@@ -149,7 +139,6 @@ const Tour: React.FC = () => {
         pagination={false}
       />
 
-      {/* Phân trang */}
       <Pagination
         current={currentPage}
         pageSize={pageSize}
@@ -162,7 +151,6 @@ const Tour: React.FC = () => {
         className="mt-4 text-center"
       />
 
-      {/* Thông báo khi không có tour */}
       {tours.length === 0 && !loading && (
         <div className="text-center p-4 text-red-500">❌ Không có tour nào!</div>
       )}

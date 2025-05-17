@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {getCustomers, getCustomerById, getBookingsByCustomerId,updateCustomer} from '../../../api/customer/index';
+import {getCustomers, getCustomerById, getBookingsByCustomerId,updateCustomer, getUserByCustomerId, getTourNameByBookingId} from '../../../api/customer/index';
 import {updateUserStatus} from '../../../api/user/index';
 import {useNavigate, useParams} from 'react-router-dom';
 import {notification,Button, Form, Input, Modal, Select, message} from 'antd';
@@ -11,7 +11,9 @@ const CustomerDetail = () => {
 
   const [customers, setCustomers] = useState<any[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
   const [bookings, setBookings] = useState<any[]>([]);
+  const [bookingTourNames, setBookingTourNames] = useState<{ [key: number]: string }>({});
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,11 +36,29 @@ const CustomerDetail = () => {
       setLoading(true);
       if (id) {
         const detail = await getCustomerById(id);
-        if (detail) setSelectedCustomer(detail);
+        if (detail) {
+          setSelectedCustomer(detail);
+          const userData = await getUserByCustomerId(id);
+          if (userData) {
+            setSelectedUser(userData);
+          } else {
+            setSelectedUser(null);
+          }
+        }
         // 🔥 Lấy luôn danh sách tour booking của khách hàng này
         const bookingData = await getBookingsByCustomerId(id);
-        if (bookingData) setBookings(bookingData);
+        if (bookingData) {
+          setBookings(bookingData);
+          const tourNames: { [key: number]: string } = {};
+          // for (const booking of bookingData) {
+          //   const tourNameRes = await getTourNameByBookingId(booking.bookingId);
+          //   console.log(`Tên tour cho booking ${booking.bookingId}:`, tourNameRes);
+          //   tourNames[booking.bookingId] = tourNameRes;
+          // }
+          setBookingTourNames(tourNames);
+        }
         else setSelectedCustomer(null);
+        
       }
       setLoading(false);
     };
@@ -50,6 +70,12 @@ const CustomerDetail = () => {
     const res = await getCustomerById(id);
     if (res) {
       setSelectedCustomer(res);
+          const userData = await getUserByCustomerId(id);
+          if (userData) {
+            setSelectedUser(userData);
+          } else {
+            setSelectedUser(null);
+          }
 
       // Cập nhật form ngay khi đổi khách hàng
       form.setFieldsValue({
@@ -58,7 +84,7 @@ const CustomerDetail = () => {
         dob: res.dob,
         gender: res.gender ? "true" : "false",
       });
-
+      
     const bookingData = await getBookingsByCustomerId(id);
     if (bookingData) setBookings(bookingData);
     }
@@ -84,19 +110,18 @@ const CustomerDetail = () => {
 
   //  Đóng modal
   const handleCancel = () => setIsModalOpen(false);
+
   //  Xử lý cập nhật thông tin khách hàng
   const handleUpdateCustomer = async (values: any) => {
     try {
-      // Lấy dữ liệu từ form
       const updatedData = {
         ...selectedCustomer,
-        ...values, // Lấy giá trị mới từ form
-        gender: values.gender === "true" // Chuyển gender thành boolean
+        ...values,
+        gender: values.gender === "true",
       };
   
       console.log("Dữ liệu cập nhật:", updatedData);
   
-      // Gọi API cập nhật
       const res = await updateCustomer(selectedCustomer.customerId, updatedData);
   
       if (res) {
@@ -105,11 +130,29 @@ const CustomerDetail = () => {
           description: 'Thông tin khách hàng đã được cập nhật.',
         });
   
+        // Cập nhật danh sách khách hàng
         const updatedCustomerList = await getCustomers();
         setCustomers(updatedCustomerList);
-        // Load lại thông tin mới của khách hàng
+  
+        // Cập nhật thông tin khách hàng
         const updatedCustomer = await getCustomerById(selectedCustomer.customerId);
+        if (!updatedCustomer) {
+          notification.error({
+            message: 'Lỗi',
+            description: 'Không thể tải lại thông tin khách hàng!',
+          });
+          return;
+        }
+        console.log('Updated customer:', updatedCustomer);
         setSelectedCustomer(updatedCustomer);
+  
+        // Cập nhật form để đồng bộ
+        form.setFieldsValue({
+          fullName: updatedCustomer.fullName,
+          address: updatedCustomer.address,
+          dob: updatedCustomer.dob,
+          gender: updatedCustomer.gender ? "true" : "false",
+        });
   
         setIsEditing(false);
         setIsModalOpen(false);
@@ -137,31 +180,41 @@ const CustomerDetail = () => {
       cancelText: "Hủy",
       async onOk() {
         try {
-          console.log("userId: ", selectedCustomer.user.id);
-          // Gọi API mới chỉ để cập nhật trạng thái
-          const res = await updateUserStatus(selectedCustomer.user.id, newStatus);
+          const res = await updateUserStatus(selectedUser.id, newStatus);
+          console.log("status cập nhật:", res);
   
-          if (res) {
-            notification.success({
-              message: "Cập nhật thành công!",
-              description: `Khách hàng đã được đổi trạng thái thành ${
-                newStatus === "ACTIVE"
-                  ? "Đang hoạt động"
-                  : newStatus === "DISABLED"
-                  ? "Đã bị vô hiệu hóa"
-                  : "Đã bị chặn"
-              }.`,
-            });
-  
-            // Cập nhật lại trạng thái khách hàng trên giao diện
-            const updatedCustomer = await getCustomerById(selectedCustomer.customerId);
-            setSelectedCustomer(updatedCustomer);
+          // Cập nhật thông tin người dùng
+          const userData = await getUserByCustomerId(selectedCustomer.customerId);
+          if (userData) {
+            setSelectedUser(userData);
+          } else {
+            throw new Error("Không thể tải thông tin người dùng");
           }
+  
+          // Cập nhật thông tin khách hàng (nếu cần)
+          const updatedCustomer = await getCustomerById(selectedCustomer.customerId);
+          if (updatedCustomer) {
+            setSelectedCustomer(updatedCustomer);
+          } else {
+            throw new Error("Không thể tải thông tin khách hàng");
+          }
+  
+          notification.success({
+            message: "Cập nhật thành công!",
+            description: `Khách hàng đã được đổi trạng thái thành ${
+              newStatus === "ACTIVE"
+                ? "Đang hoạt động"
+                : newStatus === "DISABLED"
+                ? "Đã bị vô hiệu hóa"
+                : "Đã bị chặn"
+            }.`,
+          });
         } catch (error) {
           console.error("Lỗi cập nhật trạng thái:", error);
           notification.error({
             message: "Lỗi",
-            description: "Cập nhật trạng thái thất bại. Vui lòng thử lại!",
+            description:
+              error.response?.data?.message || "Cập nhật trạng thái thất bại. Vui lòng thử lại!",
           });
         }
       },
@@ -174,13 +227,13 @@ const CustomerDetail = () => {
   return (
     <div className="flex h-full">
       {/*  Danh sách khách hàng bên trái */}
-      <div className="w-1/3 border-r border-gray-300 p-2 overflow-auto">
+      <div className="w-1/5 border-r border-gray-300 p-2 overflow-auto">
         <h2 className="text-lg font-bold mb-2"> Danh sách khách hàng</h2>
         <table className="table-auto w-full border-collapse border border-gray-300 text-sm">
           <thead className="bg-gray-200">
             <tr>
               <th className="border p-2">Tên</th>
-              <th className="border p-2">Email</th>
+              {/* <th className="border p-2">Email</th> */}
             </tr>
           </thead>
           <tbody>
@@ -193,7 +246,7 @@ const CustomerDetail = () => {
                 onClick={() => handleSelectCustomer(cus.customerId)}
               >
                 <td className="border p-2">{cus.fullName}</td>
-                <td className="border p-2">{cus.user.email}</td>
+                {/* <td className="border p-2">{cus.user.email}</td> */}
               </tr>
             ))}
           </tbody>
@@ -201,7 +254,7 @@ const CustomerDetail = () => {
       </div>
 
       {/*  Chi tiết khách hàng bên phải (2/3 màn hình) */}
-      <div className="w-2/3 p-4 overflow-auto">
+      <div className="w-4/5 p-4 overflow-auto">
         {selectedCustomer ? (
           <>
           <div className="flex items-center gap-2 mb-4">
@@ -211,19 +264,23 @@ const CustomerDetail = () => {
           </Button>
             {/* Select trạng thái */}
             <Select
-              value={selectedCustomer.user.status}
+              value={selectedUser.status}
               style={{
                 width: 200,
                 height: 42, // Đảm bảo chiều cao khớp với button
                 lineHeight: '40px', // Căn chỉnh chữ giữa
                 color:
-                  selectedCustomer.user.status === 'ACTIVE'
+                  selectedUser.status === 'ACTIVE'
                     ? 'green'
-                    : selectedCustomer.user.status === 'DISABLED'
+                    : selectedUser.status === 'DISABLED'
                     ? 'orange'
                     : 'red',
               }}
-              onChange={(value) => handleChangeStatus(value)}
+              onChange={(value={selectedUser}) => {
+                console.log("status cập nhật:", value);
+                handleChangeStatus(value)
+                
+              }}
             >
               <Option value="ACTIVE" style={{ color: 'green' }}>🟢 Đang hoạt động</Option>              
               <Option value="BLOCKED" style={{ color: 'red' }}>🔴 Đã bị chặn</Option>
@@ -242,7 +299,9 @@ const CustomerDetail = () => {
                 <div className="text-gray-800">{selectedCustomer.dob}</div>
 
                 <div className="font-semibold text-gray-600">Email:</div>
-                <div className="text-gray-800">{selectedCustomer.user.email}</div>
+                <div className="text-gray-800">
+                  {selectedUser.email}
+                </div>
 
                 <div className="font-semibold text-gray-600">Địa chỉ:</div>
                 <div className="text-gray-800">{selectedCustomer.address}</div>
@@ -253,16 +312,16 @@ const CustomerDetail = () => {
                 <div className="font-semibold text-gray-600">Trạng thái:</div>
                 <div
                   className={`${
-                    selectedCustomer.user.status === 'ACTIVE'
+                    selectedUser.status === 'ACTIVE'
                       ? 'text-green-600'
-                      : selectedCustomer.user.status === 'DISABLED'
+                      : selectedUser.status === 'DISABLED'
                       ? 'text-yellow-500'
                       : 'text-red-500'
                   }`}
                 >
-                  {selectedCustomer.user.status === 'ACTIVE'
+                  {selectedUser.status === 'ACTIVE'
                     ? 'Đang hoạt động'
-                    : selectedCustomer.user.status === 'DISABLED'
+                    : selectedUser.status === 'DISABLED'
                     ? 'Đã bị vô hiệu hóa'
                     : 'Đã bị chặn'}
                 </div>
@@ -345,7 +404,7 @@ const CustomerDetail = () => {
                     {bookings.map((booking: any, index: number) => (
                       <tr key={index} className="hover:bg-gray-100">
                         <td className="border p-2 text-center">{booking.bookingDate}</td>
-                        <td className="border p-2">{booking.tour.name}</td>
+                        <td className="border p-2">{booking.tourName}</td>
                         <td className="border p-2 text-center">{booking.numberPeople}</td>
                         <td className="border p-2 text-right">{booking.totalPrice.toLocaleString()} ₫</td>
                       </tr>

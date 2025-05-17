@@ -5,11 +5,7 @@ import { createDiscount } from "../../../api/discount/index";
 const AddPromotionForm = ({
   onClose,
   onSuccess,
-}: {
-  onClose: () => void;
-  onSuccess: (promo: any) => void;
 }) => {
-  // Khởi tạo state
   const [formData, setFormData] = useState({
     code: "",
     description: "",
@@ -23,35 +19,27 @@ const AddPromotionForm = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Xử lý nhập liệu
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // Xử lý submit
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
       const newPromo = await createDiscount(formData);
-
-      if (newPromo) {
-        message.success("🎉 Thêm khuyến mãi thành công!");
-        onSuccess(newPromo);
-
-        // Hiển thị modal thông báo
-        Modal.success({
-          title: "Thành công!",
-          content: `Khuyến mãi "${formData.code}" đã được tạo thành công.`,
-          onOk() {
-            window.location.reload(); // Reload trang sau khi thêm xong
-          },
-        });
-      }
+      message.success("🎉 Thêm khuyến mãi thành công!");
+      onSuccess(newPromo);
+      onClose(); // Đóng form ngay sau khi thêm thành công
     } catch (error) {
-      message.error("❌ Lỗi khi thêm khuyến mãi!");
+      console.error("Lỗi khi thêm khuyến mãi:", error);
+      if (error.response?.data?.message) {
+        message.error(`❌ ${error.response.data.message}`);
+      } else {
+        message.error("❌ Lỗi khi thêm khuyến mãi, vui lòng thử lại!");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -140,7 +128,6 @@ const AddPromotionForm = ({
             required
           />
 
-          {/* Nút Thêm & Hủy */}
           <div className="flex justify-between mt-2 gap-4">
             <button
               type="submit"

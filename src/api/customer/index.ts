@@ -26,6 +26,17 @@ export const getCustomerById = async (id: number): Promise<CustomAxiosResponse<a
   }
 };
 
+// 🔍 Lấy thông tin user khách hàng
+export const getUserByCustomerId = async (id: number): Promise<CustomAxiosResponse<any> | undefined> => {
+  try {
+    const res = await axios.get(`${API_URL}/api/customers/user/${id}`);
+    return res;
+  } catch (error: any) {
+    toast.error("Không thể tải thông tin khách hàng!");
+    console.error("Lỗi lấy thông tin khách hàng:", error);
+  }
+};
+
 // ➕ Thêm mới khách hàng
 export const createCustomer = async (data: any): Promise<CustomAxiosResponse<any> | undefined> => {
   try {
@@ -67,8 +78,8 @@ export const deleteCustomer = async (id: number): Promise<CustomAxiosResponse<an
 // Lấy danh sách tour booking từ customerId
 export const getBookingsByCustomerId = async (customerId: number): Promise<CustomAxiosResponse<any> | undefined> => {
   try {
-    const res = await axios.get(`${API_URL}/api/bookings/customer/${customerId}`);
-    console.log("danh sách booking của khách hàng: ", res)
+    const res = await axios.get(`${API_URL}/api/manage-bookings/customer/${customerId}`);
+    // console.log("danh sách booking của khách hàng: ", res)
     return res;
   } catch (error: any) {
     toast.error("Không thể tải danh sách tour booking của khách hàng!");
@@ -76,4 +87,15 @@ export const getBookingsByCustomerId = async (customerId: number): Promise<Custo
   }
 };
 
+// Lấy tour name từ bookingid
+export const getTourNameByBookingId = async (bookingId: number): Promise<CustomAxiosResponse<any> | undefined> => {
+  try {
+    const res = await axios.get(`${API_URL}/api/bookings/tourName/${bookingId}`);
+    console.log("danh sách booking của khách hàng: ", res)
+    return res;
+  } catch (error: any) {
+    toast.error("Không thể tải danh sách tour booking của khách hàng!");
+    console.error("Lỗi lấy danh sách tour booking:", error);
+  }
+};
 

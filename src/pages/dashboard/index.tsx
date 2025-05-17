@@ -128,7 +128,7 @@ const handleMenuClick = (key: string, path: string, hasSubmenu: boolean = false)
     {menuItems.map((item) => (
       <li
         key={item.key}
-        className={`mb-2 p-2 cursor-pointer rounded-md text-center transition-colors ${
+        className={`mb-2 p-2 cursor-pointer rounded-md text-left pl-2 text-bold transition-colors ${
           activeMenu === item.key ? 'bg-green-500 text-white' : 'hover:bg-green-300'
         }`}
         onClick={() => handleMenuClick(item.key, item.path, !!item.submenu)}

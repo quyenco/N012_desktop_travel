@@ -7,7 +7,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 // 🎯 Lấy danh sách tất cả booking
 export const getBookings = async (): Promise<CustomAxiosResponse<any> | undefined> => {
   try {
-    const res = await axios.get(`${API_URL}/api/bookings/all`);
+    const res = await axios.get(`${API_URL}/api/manage-bookings`);
     return res;
   } catch (error: any) {
     toast.error("Không thể tải danh sách booking!");
@@ -18,7 +18,8 @@ export const getBookings = async (): Promise<CustomAxiosResponse<any> | undefine
 // 🔍 Lấy chi tiết booking theo ID
 export const getBookingById = async (id: number): Promise<CustomAxiosResponse<any> | undefined> => {
   try {
-    const res = await axios.get(`${API_URL}/api/bookings/${id}`);
+    const res = await axios.get(`${API_URL}/api/manage-bookings/${id}`);
+    console.log(res)
     return res;
   } catch (error: any) {
     toast.error("Không thể tải thông tin booking!");

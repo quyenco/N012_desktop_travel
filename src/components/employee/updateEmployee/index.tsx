@@ -29,7 +29,7 @@ const UpdateEmployee: React.FC = () => {
               dob: employeeData.dob,
               phone: employeeData.phoneNumber,
               address: employeeData.address,
-              gender: employeeData.gender ? "Nữ" : "Nam",
+              gender: employeeData.gender ? "Nam" : "Nữ",
               position: employeeData.position ? "Quản lý" : "Nhân viên",
               cid: employeeData.cid,
             },

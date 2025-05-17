@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, Space, notification } from "antd";
+import { Table, Button, Modal, Form, Input, Space, notification, Spin } from "antd";
 import { toast } from "react-toastify";
 import { 
   getTourCategories, 
@@ -14,14 +14,18 @@ const TourCategoryManagement: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any>(null);
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
   // 🛠️ Lấy danh sách danh mục từ API
   const fetchCategories = async () => {
     try {
+      setLoading(true);
       const res = await getTourCategories();
       setCategories(res);
     } catch (error) {
       console.error("Lỗi khi lấy danh mục tour:", error);
+    }finally{
+      setLoading(false)
     }
   };
 
@@ -155,6 +159,9 @@ const TourCategoryManagement: React.FC = () => {
       ),
     },
   ];
+
+  if(loading) return <Spin tip="⏳ Đang tải dữ liệu..." className="block mx-auto mt-10" size="large" />;
+
 
   return (
     <div className="p-4 bg-white shadow rounded-md">

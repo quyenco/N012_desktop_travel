@@ -8,7 +8,15 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 export const updateUserStatus = async (id: number, data: any): Promise<CustomAxiosResponse<any> | undefined> => {
   try {
     console.log('data:', data);
-    const res = await axios.patch(`${API_URL}/api/users/status/${id}`, {status:data});
+    const res = await axios.patch(`${API_URL}/api/users/status/${id}`, {status:data}
+    // ,
+    // {
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   withCredentials: true, // 🔥 Cực kỳ quan trọng khi backend dùng allowCredentials(true)
+    // }
+    );
     toast.success('✅ Cập nhật user status thành công!');
 
     return res;

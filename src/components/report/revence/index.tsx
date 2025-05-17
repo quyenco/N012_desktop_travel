@@ -164,9 +164,10 @@ const BookingReport = () => {
     PAID: 'gold',
     IN_PROGRESS: 'purple',
   };
+  
 
   const columns = [
-    { title: 'Tên khách hàng', dataIndex: 'customerName', key: 'customerName' },
+    { title: 'Tên khách hàng', dataIndex: 'customerFullName', key: 'customerFullName' },
     { title: 'Tour', dataIndex: 'tourName', key: 'tourName' },
     {
       title: 'Ngày đặt',
@@ -202,7 +203,6 @@ const BookingReport = () => {
 
     const groupedData = data.reduce((acc, item) => {
       if (!item.bookingDate) {
-        console.warn('Invalid bookingDate:', item);
         return acc;
       }
 
@@ -322,7 +322,8 @@ const BookingReport = () => {
               {timeMode === 'day' && (
                 <RangePicker
                   style={{ width: '100%', marginTop: 10 }}
-                  defaultValue={[dayjs().subtract(4, 'day'), dayjs()]}
+                  value={dateRange}
+                  // defaultValue={[dayjs().subtract(4, 'day'), dayjs()]}
                   format={(value) => value.format('DD-MM-YYYY')}
                   onChange={(dates) => setDateRange(dates || [dayjs(), dayjs()])}
                 />

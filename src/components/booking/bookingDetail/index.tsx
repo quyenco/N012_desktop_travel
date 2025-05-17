@@ -14,6 +14,7 @@ import {
   ArrowLeftOutlined,
   GiftOutlined,
 } from '@ant-design/icons';
+import { Spin } from 'antd';
 
 const BookingDetail = () => {
   const {id} = useParams();
@@ -27,16 +28,23 @@ const BookingDetail = () => {
       try {
         const data = await getBookingById(id);
         if (data) {
-          setBooking(data);
+          setBooking(data.booking);
   
           // Gọi API customer & tour ngay sau khi setBooking xong
-          const [customerData, tourData] = await Promise.all([
-            getCustomerByBookingId(data.bookingId),
-            getTourByBookingId(data.bookingId),
-          ]);
+          // const [customerData, tourData] = await Promise.all([
+          //   getCustomerByBookingId(data.bookingId),
+          //   getTourByBookingId(data.bookingId),
+          // ]);
   
-          setCustomer(customerData);
-          setTour(tourData);
+          setCustomer(data.customer);
+          setTour({
+            tourName:data.tourName,
+            description: data.tourDescription,
+            location: data.tourLocation,
+            category: data.categoryName,
+            price: data.price
+          });
+          console.log("tour:", tour)
         }
       } catch (error) {
         console.error("Lỗi khi tải dữ liệu:", error);
@@ -47,7 +55,7 @@ const BookingDetail = () => {
   }, [id]);
   
 
-  if (!booking) return <div className="text-center p-4">⏳ Đang tải chi tiết đơn đặt...</div>;
+  if (!booking) return<Spin tip="⏳ Đang tải dữ liệu..." className="block mx-auto mt-10" size="large" />;
 
   // Định nghĩa style cho trạng thái đơn
   const statusStyles: Record<string, {color: string; label: string}> = {
@@ -93,7 +101,7 @@ const BookingDetail = () => {
         <h3 className="text-2xl font-semibold mb-4 text-blue-600"> Thông tin tour</h3>
         
         <p>
-          <strong>Tên tour:</strong> {tour.name}
+          <strong>Tên tour:</strong> {tour.tourName}
         </p>
          <p>
           <EnvironmentOutlined /> <strong>Địa điểm:</strong> {tour.location}
@@ -102,7 +110,7 @@ const BookingDetail = () => {
           <FileTextOutlined /> <strong>Mô tả:</strong> {tour.description}
         </p>
         <p>
-          <TagOutlined /> <strong>Loại tour:</strong> {tour.tourcategory.categoryName}
+          <TagOutlined /> <strong>Loại tour:</strong> {tour.category}
         </p>
         <p>
           <strong>Giá gốc:</strong> {tour.price.toLocaleString()} ₫

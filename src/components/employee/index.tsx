@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getEmployees } from "../../api/employee/index";
 import AddEmployeeForm from "../../components/employee/addEmployee/index";
 import { useNavigate } from "react-router-dom";
-import { Input } from "antd";
+import { Input, Spin } from "antd";
 
 const Employee = () => {
   const [employees, setEmployees] = useState<any[]>([]);
@@ -18,6 +18,7 @@ const Employee = () => {
     status: "",
     gender: "",
   });
+  const [loading, setLoading] = useState<boolean>(false);
 
 
   const navigate = useNavigate();
@@ -27,10 +28,17 @@ const Employee = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true); // 🔄 Bắt đầu loading
+    try {
       const data = await getEmployees();
       console.log("Nhân viên:", data);
       setEmployees(data);
-    };
+    } catch (error) {
+      console.error("Lỗi khi tải nhân viên:", error);
+    } finally {
+      setLoading(false); // ✅ Dừng loading dù thành công hay lỗi
+    }
+  };
 
     fetchData();
   }, []);
@@ -70,19 +78,21 @@ const Employee = () => {
   };
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-
+  
+  // 🎯 Loading spinner
+  if (loading) return <Spin tip="⏳ Đang tải dữ liệu..." className="block mx-auto mt-10" size="large" />;
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">👨‍💼 Quản lý nhân viên</h1>
-        {userRole === "ADMIN" && (
+        {/* {userRole === "ADMIN" && (
         <button
         onClick={handleAddEmployee}
         className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
       >
         ➕ Thêm Nhân Viên
       </button>
-        )}
+        )} */}
       </div>
 
       {/* {showAddForm && (

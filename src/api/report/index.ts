@@ -143,3 +143,16 @@ export const getBookingTotalPaid= async (startDate: string, endDate: string): Pr
         console.error("Lỗi lấy tổng đơn đặt:", error);
       }
     };
+
+    // 🛠 Lấy danh sách danh mục tour
+export const getToursRevenue = async (startDate: string, endDate: string): Promise<CustomAxiosResponse<any> | undefined> => {
+  try {
+    const res = await axios.get(`${API_URL}/api/reports/tour-revenue`, {
+        params: { startDate, endDate },
+      });
+    return res;
+  } catch (error: any) {
+    toast.error("Không thể tải tổng đơn đặt!");
+    console.error("Lỗi lấy tổng đơn đặt:", error);
+  }
+};

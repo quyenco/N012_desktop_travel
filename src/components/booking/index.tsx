@@ -55,15 +55,15 @@ const BookingList: React.FC = () => {
 
     // Chuyển mọi thứ về string để đảm bảo so sánh không lỗi
   const bookingIdString = String(booking.bookingId);
-  const customerName = String(booking.customer?.fullName || "").toLowerCase();
-  const tourName = String(booking.tour?.name || "").toLowerCase();
+  const customerName = String(booking.cutomerName || "").toLowerCase();
+  const tourName = String(booking.tourName || "").toLowerCase();
 
     return (
       
       // Tìm theo mã đơn, tên khách hàng, tên tour
       (bookingIdString.includes(lowerSearchTerm) ||
-      customerName.includes(lowerSearchTerm) ||
-      tourName.includes(lowerSearchTerm)) &&
+     customerName.includes(lowerSearchTerm) ||
+     tourName.includes(lowerSearchTerm)) &&
       // Tìm theo trạng thái booking
       (searchStatus ? booking.status === searchStatus : true) &&
       // Tìm theo trạng thái thanh toán
@@ -97,7 +97,7 @@ const BookingList: React.FC = () => {
       {/* 🎯 Thanh tìm kiếm đa tiêu chí + bộ lọc */}
       <div className="flex flex-wrap gap-4 mb-4">
         <Input
-          placeholder="🔍 Tìm kiếm mã đơn, khách hàng, tour..."
+          placeholder="🔍 Tìm kiếm khách hàng, tour..."
           prefix={<SearchOutlined />}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
