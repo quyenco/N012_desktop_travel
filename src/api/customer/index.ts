@@ -2,7 +2,7 @@ import axios, { CustomAxiosResponse } from "../axiosConfig";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+const API_URL = import.meta.env.VITE_API_URL || "http://18.138.107.49:8080";
 
 // 📌 Lấy danh sách khách hàng
 export const getCustomers = async (): Promise<CustomAxiosResponse<any> | undefined> => {
